@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { TrackRepository } from './track.repository';
@@ -25,5 +25,9 @@ export class TrackService {
 
   async remove(id: string) {
     await this.trackRepository.remove(id);
+  }
+
+  async updateArtistId(artistId: string) {
+    this.trackRepository.updateArtistId(artistId);
   }
 }

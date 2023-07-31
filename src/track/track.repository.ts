@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Track } from './track.types';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
@@ -41,5 +41,12 @@ export class TrackRepository {
   async remove(id: string): Promise<void> {
     await this.findOne(id);
     this.tracks = this.tracks.filter((track) => track.id !== id);
+  }
+
+  async updateArtistId(artistId: string) {
+    this.tracks = this.tracks.map((track) => ({
+      ...track,
+      artistId: track.artistId === artistId ? null : track.artistId,
+    }));
   }
 }
