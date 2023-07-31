@@ -2,10 +2,15 @@ import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { TrackRepository } from './track.repository';
+import { FavsService } from '../favs/favs.service';
 
 @Injectable()
 export class TrackService {
-  constructor(private readonly trackRepository: TrackRepository) {}
+  constructor(
+    private readonly trackRepository: TrackRepository,
+    @Inject(forwardRef(() => FavsService))
+    private readonly favsService: FavsService,
+  ) {}
 
   async create(createTrackDto: CreateTrackDto) {
     return await this.trackRepository.create(createTrackDto);
