@@ -3,7 +3,7 @@ import { User, UserResponse, UserUpdateConfig } from './user.types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { UpdateUserdDto } from './dto/update-user.dto';
-import { NotFoundException } from 'src/lib/exception';
+import { NotFoundException } from '../lib/exception';
 
 @Injectable()
 export class UserRepository {

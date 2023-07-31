@@ -60,6 +60,6 @@ export class UserController {
     )
     id: string,
   ) {
-    return await this.userService.remove(id);
+    await this.userService.remove(id);
   }
 }
