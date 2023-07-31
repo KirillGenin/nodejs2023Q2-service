@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { User, UserResponse, UserUpdateConfig } from './user.types';
-import { CreateUserDto } from './dto/createUser.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { v4 as uuidv4 } from 'uuid';
-import { UpdatePasswordDto } from './dto/updatePassword.dto';
+import { UpdateUserdDto } from './dto/update-user.dto';
+import { NotFoundException } from 'src/lib/exception';
 
 @Injectable()
 export class UserRepository {
@@ -21,12 +22,15 @@ export class UserRepository {
 
   async findOne(id: string): Promise<UserResponse> {
     const user = this.users.find((user) => user.id === id);
+
+    if (!user) throw new NotFoundException(id);
+
     const { password, ...rest } = user;
     return rest;
   }
 
-  async create(body: CreateUserDto): Promise<UserResponse> {
-    const { login, password } = body;
+  async create(createUserDto: CreateUserDto): Promise<UserResponse> {
+    const { login, password } = createUserDto;
 
     const user: User = {
       id: uuidv4(),
@@ -42,20 +46,18 @@ export class UserRepository {
     return rest;
   }
 
-  async update(id: string, body: UpdatePasswordDto): Promise<UserResponse> {
+  async update(
+    id: string,
+    updateUserdDto: UpdateUserdDto,
+  ): Promise<UserResponse> {
     const user = this.users.find((user) => user.id === id);
 
-    if (!user) {
-      console.log(`Пользователь с id ${id} не найден`);
-      return {} as UserResponse;
-    }
+    if (!user) throw new NotFoundException(id);
 
-    const { oldPassword, newPassword } = body;
+    const { oldPassword, newPassword } = updateUserdDto;
 
-    if (oldPassword !== user.password) {
-      console.log(`Пароли не совпадают`);
-      return {} as UserResponse;
-    }
+    if (oldPassword !== user.password)
+      throw new ForbiddenException('oldPassword is wrong');
 
     const config: UserUpdateConfig = {
       password: newPassword,
@@ -69,16 +71,11 @@ export class UserRepository {
     return rest;
   }
 
-  async remove(id: string): Promise<unknown> {
+  async remove(id: string): Promise<void> {
     const user = this.users.find((user) => user.id === id);
 
-    if (!user) {
-      console.log(`Пользователь с id ${id} не найден`);
-      return null;
-    }
+    if (!user) throw new NotFoundException(id);
 
     this.users = this.users.filter((user) => user.id !== id);
-    console.log(`Пользователь с id ${id} БЫЛ УДАЛЕН`);
-    return null;
   }
 }

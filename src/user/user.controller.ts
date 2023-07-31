@@ -6,10 +6,13 @@ import {
   Body,
   Put,
   Delete,
+  ParseUUIDPipe,
+  HttpStatus,
+  HttpCode,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/createUser.dto';
-import { UpdatePasswordDto } from './dto/updatePassword.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserdDto } from './dto/update-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -21,7 +24,13 @@ export class UserController {
   }
 
   @Get(':id')
-  async getOne(@Param('id') id: string) {
+  async getOne(
+    @Param(
+      'id',
+      new ParseUUIDPipe({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
+    )
+    id: string,
+  ) {
     return await this.userService.getOne(id);
   }
 
@@ -31,12 +40,26 @@ export class UserController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() body: UpdatePasswordDto) {
-    return await this.userService.update(id, body);
+  async update(
+    @Param(
+      'id',
+      new ParseUUIDPipe({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
+    )
+    id: string,
+    @Body() updateUserdDto: UpdateUserdDto,
+  ) {
+    return await this.userService.update(id, updateUserdDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  @HttpCode(204)
+  async remove(
+    @Param(
+      'id',
+      new ParseUUIDPipe({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
+    )
+    id: string,
+  ) {
     return await this.userService.remove(id);
   }
 }
