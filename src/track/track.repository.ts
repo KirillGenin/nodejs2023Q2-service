@@ -49,4 +49,11 @@ export class TrackRepository {
       artistId: track.artistId === artistId ? null : track.artistId,
     }));
   }
+
+  async updateAlbumId(albumId: string) {
+    this.tracks = this.tracks.map((track) => ({
+      ...track,
+      albumId: track.albumId === albumId ? null : track.albumId,
+    }));
+  }
 }

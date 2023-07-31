@@ -30,4 +30,8 @@ export class TrackService {
   async updateArtistId(artistId: string) {
     this.trackRepository.updateArtistId(artistId);
   }
+
+  async updateAlbumId(albumId: string) {
+    this.trackRepository.updateAlbumId(albumId);
+  }
 }

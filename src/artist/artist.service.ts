@@ -3,12 +3,14 @@ import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { ArtistRepository } from './artist.repository';
 import { TrackService } from '../track/track.service';
+import { AlbumService } from '../album/album.service';
 
 @Injectable()
 export class ArtistService {
   constructor(
     private readonly artistRepository: ArtistRepository,
     private readonly trackService: TrackService,
+    private readonly albumService: AlbumService,
   ) {}
 
   async create(createArtistDto: CreateArtistDto) {
@@ -29,6 +31,7 @@ export class ArtistService {
 
   async remove(id: string) {
     await this.artistRepository.remove(id);
-    await this.trackService.updateArtistId(id);
+    this.trackService.updateArtistId(id);
+    this.albumService.updateArtistId(id);
   }
 }
