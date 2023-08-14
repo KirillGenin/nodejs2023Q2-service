@@ -60,7 +60,7 @@ export class AlbumService {
       artistId: album.artistId === artistId ? null : album.artistId,
     }));
 
-    for (let album of albums) {
+    for (const album of albums) {
       await this.albumRepository.save(album);
     }
   }

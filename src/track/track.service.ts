@@ -55,7 +55,7 @@ export class TrackService {
       artistId: track.artistId === artistId ? null : track.artistId,
     }));
 
-    for (let track of tracks) {
+    for (const track of tracks) {
       await this.trackRepository.save(track);
     }
   }
@@ -68,7 +68,7 @@ export class TrackService {
       albumId: track.albumId === albumId ? null : track.albumId,
     }));
 
-    for (let track of tracks) {
+    for (const track of tracks) {
       await this.trackRepository.save(track);
     }
   }
