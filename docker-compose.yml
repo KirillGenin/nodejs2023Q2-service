@@ -42,9 +42,9 @@ services:
             - .env
         environment:
             DB_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
-            API_PORT: ${API_PORT}
+            PORT: ${PORT}
         ports:
-            - "${API_PORT}:${API_PORT}"
+            - "${PORT}:${PORT}"
         networks:
             - network
         restart: always
