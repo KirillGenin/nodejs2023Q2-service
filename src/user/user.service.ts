@@ -1,32 +1,70 @@
-import { Injectable } from '@nestjs/common';
-import { UserRepository } from './user.repository';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserdDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
+import { NotFoundException } from '../lib/exception';
+import { User, UserUpdateConfig } from './user.types';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
+  ) {}
 
   async get() {
     return await this.userRepository.find();
   }
 
   async getOne(id: string) {
-    return await this.userRepository.findOne(id);
+    const user = await this.userRepository.findOne({ where: { id: id } });
+    if (!user) throw new NotFoundException(id);
+    return user;
   }
 
   async create(createUserDto: CreateUserDto) {
-    return await this.userRepository.create(createUserDto);
+    const { login, password } = createUserDto;
+
+    const user: User = {
+      id: uuidv4(),
+      login,
+      version: 1,
+      password,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    await this.userRepository.save(user);
+    return await this.userRepository.findOne({ where: { id: user.id } });
   }
 
   async update(id: string, updateUserdDto: UpdateUserdDto) {
-    return await this.userRepository.update(id, updateUserdDto);
+    const user = await this.userRepository.findOne({ where: { id: id } });
+    if (!user) throw new NotFoundException(id);
+
+    const { oldPassword, newPassword } = updateUserdDto;
+
+    if (oldPassword !== user.password)
+      throw new ForbiddenException('oldPassword is wrong');
+
+    const config: UserUpdateConfig = {
+      password: newPassword,
+      version: user.version + 1,
+      updatedAt: Date.now(),
+    };
+
+    Object.assign(user, config);
+
+    return await this.userRepository.save(user);
   }
 
   async remove(id: string) {
-    return await this.userRepository.remove(id);
+    const user = await this.userRepository.findOne({ where: { id: id } });
+    if (!user) throw new NotFoundException(id);
+
+    await this.userRepository.remove(user);
+    return user;
   }
 }
