@@ -53,7 +53,7 @@ export class ArtistService {
     const artist = await this.findOne(id);
     await this.artistRepository.remove(artist);
 
-    this.trackService.updateArtistId(id);
-    this.albumService.updateArtistId(id);
+    await this.trackService.updateArtistId(id);
+    await this.albumService.updateArtistId(id);
   }
 }
