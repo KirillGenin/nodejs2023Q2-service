@@ -49,7 +49,7 @@ export class AlbumService {
   async remove(id: string) {
     const artist = await this.findOne(id);
     await this.albumRepository.remove(artist);
-    this.trackService.updateAlbumId(id);
+    await this.trackService.updateAlbumId(id);
   }
 
   async updateArtistId(artistId: string) {

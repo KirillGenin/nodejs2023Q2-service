@@ -3,40 +3,74 @@ import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { TrackRepository } from './track.repository';
 import { FavsService } from '../favs/favs.service';
+import { v4 as uuidv4 } from 'uuid';
+import { NotFoundException } from '../lib/exception';
+import { TrackEntity } from './entities/track.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Track } from './track.types';
 
 @Injectable()
 export class TrackService {
   constructor(
-    private readonly trackRepository: TrackRepository,
+    @InjectRepository(TrackEntity)
+    private readonly trackRepository: Repository<TrackEntity>,
     @Inject(forwardRef(() => FavsService))
     private readonly favsService: FavsService,
   ) {}
 
   async create(createTrackDto: CreateTrackDto) {
-    return await this.trackRepository.create(createTrackDto);
+    const track: Track = {
+      id: uuidv4(),
+      ...createTrackDto,
+    };
+    return await this.trackRepository.save(track);
   }
 
   async findAll() {
-    return await this.trackRepository.findAll();
+    return await this.trackRepository.find();
   }
 
   async findOne(id: string) {
-    return await this.trackRepository.findOne(id);
+    const track = await this.trackRepository.findOne({ where: { id: id } });
+    if (!track) throw new NotFoundException(id);
+    return track;
   }
 
   async update(id: string, updateTrackDto: UpdateTrackDto) {
-    return await this.trackRepository.update(id, updateTrackDto);
+    const track = await this.findOne(id);
+    Object.assign(track, updateTrackDto);
+    return await this.trackRepository.save(track);
   }
 
   async remove(id: string) {
-    await this.trackRepository.remove(id);
+    const track = await this.findOne(id);
+    await this.trackRepository.remove(track);
   }
 
   async updateArtistId(artistId: string) {
-    this.trackRepository.updateArtistId(artistId);
+    let tracks = await this.trackRepository.find();
+
+    tracks = tracks.map((track) => ({
+      ...track,
+      artistId: track.artistId === artistId ? null : track.artistId,
+    }));
+
+    for (let track of tracks) {
+      await this.trackRepository.save(track);
+    }
   }
 
   async updateAlbumId(albumId: string) {
-    this.trackRepository.updateAlbumId(albumId);
+    let tracks = await this.trackRepository.find();
+
+    tracks = tracks.map((track) => ({
+      ...track,
+      albumId: track.albumId === albumId ? null : track.albumId,
+    }));
+
+    for (let track of tracks) {
+      await this.trackRepository.save(track);
+    }
   }
 }
