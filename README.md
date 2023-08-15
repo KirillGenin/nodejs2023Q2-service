@@ -1,4 +1,10 @@
-# Home Library Service: Part 1
+# Home Library Service: Part 2
+
+## Prerequisites
+
+- Git - [Download & Install Git](https://git-scm.com/downloads).
+- Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
+- Docker Desktop [Download & Install Docker Desktop for Windows](https://docs.docker.com/desktop/install/windows-install/)
 
 ## Downloading
 
@@ -10,98 +16,27 @@ git clone https://github.com/KirillGenin/nodejs2023Q2-service.git
 git clone git@github.com:KirillGenin/nodejs2023Q2-service.git
 ```
 
+## Switch to the develop branch
+
+```
+git checkout task-8-hl-service-2
+```
+
 ## Installing NPM modules
 
 ```
 npm install
 ```
 
-## Running application
+## Environment
 
 Rename file *.env.example* to *.env*
 
+## Running application
+
 ```
-npm start
+docker-compose up
 ```
-
-## Api REST
-
-<details> 
-<summary>/user:</summary>
-
-- `GET /user` - to get all users
-
-- `GET /user/:id` - get single user by id
-
-- `POST /user` - create new user 
-
-- `PUT /user/:id` - update user's password _only if you know old password_
-
-- `DELETE /user/:id` - delete user
-
-</details>
-
-<details>
-<summary>/track:</summary>
-
-- `GET /track` - get all tracks
-
-- `GET /track/:id` - get single track by id
-
-- `POST /track` - create new track:
-
-- `PUT /track/:id` - update track
-
-- `DELETE /track/:id` - delete track
-
-</details>
-<details>
-<summary>/artist:</summary>
-
-- `GET /artist` - get all artists
-
-- `GET /artist/:id` - get single artist by id
-
-- `POST /artist` - create new artist
-
-- `PUT /artist/:id` - update artist
-
-- `DELETE /artist/:id` - delete artist
-</details>
-<details>
-<summary>
-/album:
-</summary>
-
-- `GET /album` - get all albums
-
-- `GET /album/:id` - get single album by id
-
-- `POST /album` - create new album
-
-- `PUT /album/:id` - update album
-
-- `DELETE /album/:id` - delete album
-</details>
-<details>
-<summary>
-/favs:
-</summary>
-
-- `GET /favs` - get all favorites
-
-- `POST /favs/track/:id` - add track to the favorite
-
-- `DELETE /favs/track/:id` - delete track from favorites
-
-- `POST /favs/album/:id` - add album to the favorites
-
-- `DELETE /favs/album/:id` - delete album from favorites
-
-- `POST /favs/artist/:id` - add artist to the favorites
-
-- `DELETE /favs/artist/:id` - delete artist from favorites
-</details>
 
 ## Testing
 
@@ -113,10 +48,12 @@ To run all tests without authorization
 npm run test
 ```
 
-To run only one of all test suites
+## Scanning
+
+Run script for vulnerabilities scanning (free solution)
 
 ```
-npm run test -- <path to suite>
+npm run start:scout
 ```
 
 ### Auto-fix and format
