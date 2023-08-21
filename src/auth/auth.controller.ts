@@ -11,4 +11,10 @@ export class AuthController {
   async signup(@Body() authDto: AuthDto) {
     return await this.authService.signUp(authDto);
   }
+
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  async signin(@Body() authDto: AuthDto) {
+    return await this.authService.signIn(authDto);
+  }
 }

@@ -7,6 +7,7 @@ import { UserEntity } from './entities/user.entity';
 import { NotFoundException } from '../lib/exception';
 import { User, UserUpdateConfig } from './user.types';
 import { v4 as uuidv4 } from 'uuid';
+import { hash, compare } from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -25,6 +26,13 @@ export class UserService {
     return user;
   }
 
+  async getOneByLogin(login: string) {
+    const user = await this.userRepository.findOne({ where: { login } });
+    if (!user)
+      throw new ForbiddenException(`User with login ${login} not found`);
+    return user;
+  }
+
   async create(createUserDto: CreateUserDto) {
     const { login, password } = createUserDto;
 
@@ -32,11 +40,12 @@ export class UserService {
       id: uuidv4(),
       login,
       version: 1,
-      password,
+      password: await hash(password, 10),
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
     await this.userRepository.save(user);
+    
     return await this.userRepository.findOne({ where: { id: user.id } });
   }
 
@@ -46,11 +55,11 @@ export class UserService {
 
     const { oldPassword, newPassword } = updateUserdDto;
 
-    if (oldPassword !== user.password)
-      throw new ForbiddenException('oldPassword is wrong');
+    const isValidPass = await compare(oldPassword, user.password);
+    if (!isValidPass) throw new ForbiddenException('oldPassword is wrong');
 
     const config: UserUpdateConfig = {
-      password: newPassword,
+      password: await hash(newPassword, 10),
       version: user.version + 1,
       updatedAt: Date.now(),
     };
