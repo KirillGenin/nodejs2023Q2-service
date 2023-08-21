@@ -8,12 +8,14 @@ import { NotFoundException } from '../lib/exception';
 import { User, UserUpdateConfig } from './user.types';
 import { v4 as uuidv4 } from 'uuid';
 import { hash, compare } from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    private readonly configService: ConfigService,
   ) {}
 
   async get() {
@@ -36,16 +38,18 @@ export class UserService {
   async create(createUserDto: CreateUserDto) {
     const { login, password } = createUserDto;
 
+    const CRYPT_SALT = Number(this.configService.get('CRYPT_SALT'));
+
     const user: User = {
       id: uuidv4(),
       login,
       version: 1,
-      password: await hash(password, 10),
+      password: await hash(password, CRYPT_SALT),
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
     await this.userRepository.save(user);
-    
+
     return await this.userRepository.findOne({ where: { id: user.id } });
   }
 
@@ -58,8 +62,10 @@ export class UserService {
     const isValidPass = await compare(oldPassword, user.password);
     if (!isValidPass) throw new ForbiddenException('oldPassword is wrong');
 
+    const CRYPT_SALT = Number(this.configService.get('CRYPT_SALT'));
+
     const config: UserUpdateConfig = {
-      password: await hash(newPassword, 10),
+      password: await hash(newPassword, CRYPT_SALT),
       version: user.version + 1,
       updatedAt: Date.now(),
     };
